@@ -1,0 +1,953 @@
+23-11-29 16:27:42.324 - INFO:   name: ffhq_scaler
+  phase: train
+  path:[
+    log: experiments/ffhq_scaler/logs
+    tb_logger: experiments/ffhq_scaler/tb_logger
+    results: experiments/ffhq_scaler/results
+    results_hr: experiments/ffhq_scaler/results/hr
+    results_sr: experiments/ffhq_scaler/results/sr
+    results_lr: experiments/ffhq_scaler/results/lr
+    process: experiments/ffhq_scaler/results/process
+    checkpoint: experiments/ffhq_scaler/checkpoint
+    resume_state: checkpoints/face
+    experiments_root: experiments/ffhq_scaler
+  ]
+  datasets:[
+    train:[
+      name: FFHQ
+      mode: LRHR
+      dataroot: ./dataset/ffhq_16_128
+      datatype: img
+      l_resolution: 20
+      r_resolution: 40
+      sample_q: None
+      batch_size: 2
+      num_workers: 8
+      augment: True
+      use_shuffle: False
+      data_len: -1
+    ]
+    val:[
+      name: CelebaHQ
+      mode: LRHR
+      dataroot: ./dataset/celebahq_16_128
+      datatype: img
+      l_resolution: 20
+      r_resolution: 40
+      batch_size: 2
+      data_len: 100
+    ]
+  ]
+  model:[
+    which_model_G: sr3
+    pretrained_encoder: True
+    finetune_norm: False
+    unet:[
+      in_channel: 2
+      out_channel: 1
+      inner_channel: 64
+      channel_multiplier: [1, 2, 4, 8]
+      attn_res: [16]
+      res_blocks: 2
+      dropout: 0.2
+    ]
+    beta_schedule:[
+      train:[
+        schedule: linear
+        n_timestep: 2000
+        linear_start: 1e-06
+        linear_end: 0.01
+      ]
+      val:[
+        schedule: linear
+        n_timestep: 2000
+        linear_start: 1e-06
+        linear_end: 0.01
+      ]
+    ]
+    diffusion:[
+      image_size: 40
+      channels: 1
+      conditional: True
+    ]
+  ]
+  train:[
+    n_iter: 1000000
+    val_freq: 3000.0
+    save_checkpoint_freq: 3000.0
+    print_freq: 200
+    optimizer:[
+      type: adam
+      lr: 0.0001
+    ]
+    ema_scheduler:[
+      step_start_ema: 5000
+      update_ema_every: 1
+      ema_decay: 0.9999
+    ]
+  ]
+  use_ddim: False
+  log_wandb_ckpt: False
+  log_eval: False
+  enable_wandb: False
+
+23-11-29 16:27:42.659 - INFO: Dataset [LIIFDataset - FFHQ] is created.
+23-11-29 16:27:42.803 - INFO: Dataset [LIIFDataset - CelebaHQ] is created.
+23-11-29 16:27:42.803 - INFO: Initial Dataset Finished
+23-11-29 16:27:44.768 - INFO: Initialization method [orthogonal]
+23-11-29 16:27:49.823 - INFO: Loading pretrained model for G [checkpoints/face] ...
+23-11-29 16:27:49.828 - INFO: Network G structure: DistributedDataParallel - GaussianDiffusion, with parameters: 186,760,224
+23-11-29 16:27:49.829 - INFO: DistributedDataParallel(
+  (module): GaussianDiffusion(
+    (encoder): EDSR(
+      (sub_mean): MeanShift(3, 3, kernel_size=(1, 1), stride=(1, 1))
+      (add_mean): MeanShift(3, 3, kernel_size=(1, 1), stride=(1, 1))
+      (head): Sequential(
+        (0): Conv3d(1, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+      )
+      (body): Sequential(
+        (0): ResBlock(
+          (body): Sequential(
+            (0): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+            (1): ReLU(inplace=True)
+            (2): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+          )
+        )
+        (1): ResBlock(
+          (body): Sequential(
+            (0): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+            (1): ReLU(inplace=True)
+            (2): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+          )
+        )
+        (2): ResBlock(
+          (body): Sequential(
+            (0): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+            (1): ReLU(inplace=True)
+            (2): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+          )
+        )
+        (3): ResBlock(
+          (body): Sequential(
+            (0): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+            (1): ReLU(inplace=True)
+            (2): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+          )
+        )
+        (4): ResBlock(
+          (body): Sequential(
+            (0): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+            (1): ReLU(inplace=True)
+            (2): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+          )
+        )
+        (5): ResBlock(
+          (body): Sequential(
+            (0): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+            (1): ReLU(inplace=True)
+            (2): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+          )
+        )
+        (6): ResBlock(
+          (body): Sequential(
+            (0): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+            (1): ReLU(inplace=True)
+            (2): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+          )
+        )
+        (7): ResBlock(
+          (body): Sequential(
+            (0): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+            (1): ReLU(inplace=True)
+            (2): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+          )
+        )
+        (8): ResBlock(
+          (body): Sequential(
+            (0): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+            (1): ReLU(inplace=True)
+            (2): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+          )
+        )
+        (9): ResBlock(
+          (body): Sequential(
+            (0): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+            (1): ReLU(inplace=True)
+            (2): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+          )
+        )
+        (10): ResBlock(
+          (body): Sequential(
+            (0): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+            (1): ReLU(inplace=True)
+            (2): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+          )
+        )
+        (11): ResBlock(
+          (body): Sequential(
+            (0): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+            (1): ReLU(inplace=True)
+            (2): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+          )
+        )
+        (12): ResBlock(
+          (body): Sequential(
+            (0): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+            (1): ReLU(inplace=True)
+            (2): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+          )
+        )
+        (13): ResBlock(
+          (body): Sequential(
+            (0): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+            (1): ReLU(inplace=True)
+            (2): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+          )
+        )
+        (14): ResBlock(
+          (body): Sequential(
+            (0): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+            (1): ReLU(inplace=True)
+            (2): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+          )
+        )
+        (15): ResBlock(
+          (body): Sequential(
+            (0): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+            (1): ReLU(inplace=True)
+            (2): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+          )
+        )
+        (16): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+      )
+      (tail): Sequential(
+        (0): Conv3d(64, 1, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+      )
+    )
+    (imnet): MLP(
+      (layers): Sequential(
+        (0): Linear(in_features=66, out_features=256, bias=True)
+        (1): ReLU()
+        (2): Linear(in_features=256, out_features=256, bias=True)
+        (3): ReLU()
+        (4): Linear(in_features=256, out_features=256, bias=True)
+        (5): ReLU()
+        (6): Linear(in_features=256, out_features=256, bias=True)
+        (7): ReLU()
+        (8): Linear(in_features=256, out_features=3, bias=True)
+      )
+    )
+    (denoise_fn): UNet(
+      (noise_level_mlp): Sequential(
+        (0): PositionalEncoding()
+        (1): Linear(in_features=64, out_features=256, bias=True)
+        (2): Swish()
+        (3): Linear(in_features=256, out_features=64, bias=True)
+      )
+      (conv_body_first): StyleLayer(
+        (0): EqualConv2d(in_channels=1, out_channels=64, kernel_size=3, stride=1, padding=1, bias=False)
+        (1): FusedLeakyReLU()
+      )
+      (conv_body_down): ModuleList(
+        (0): StyleLayer(
+          (0): UpFirDnSmooth(upsample_factor=1, downsample_factor=2)
+          (1): EqualConv2d(in_channels=64, out_channels=64, kernel_size=3, stride=2, padding=1, bias=False)
+          (2): FusedLeakyReLU()
+        )
+        (1): StyleLayer(
+          (0): UpFirDnSmooth(upsample_factor=1, downsample_factor=2)
+          (1): EqualConv2d(in_channels=64, out_channels=128, kernel_size=3, stride=2, padding=1, bias=False)
+          (2): FusedLeakyReLU()
+        )
+        (2): StyleLayer(
+          (0): UpFirDnSmooth(upsample_factor=1, downsample_factor=2)
+          (1): EqualConv2d(in_channels=128, out_channels=256, kernel_size=3, stride=2, padding=1, bias=False)
+          (2): FusedLeakyReLU()
+        )
+        (3): StyleLayer(
+          (0): UpFirDnSmooth(upsample_factor=1, downsample_factor=2)
+          (1): EqualConv2d(in_channels=256, out_channels=512, kernel_size=3, stride=2, padding=1, bias=False)
+          (2): FusedLeakyReLU()
+        )
+      )
+      (condition_scale1): ModuleList(
+        (0): EqualLinear(in_channels=1, out_channels=64, bias=True)
+        (1): EqualLinear(in_channels=1, out_channels=128, bias=True)
+        (2): EqualLinear(in_channels=1, out_channels=256, bias=True)
+        (3): EqualLinear(in_channels=1, out_channels=512, bias=True)
+      )
+      (condition_scale2): ModuleList(
+        (0): EqualLinear(in_channels=1, out_channels=64, bias=True)
+        (1): EqualLinear(in_channels=1, out_channels=128, bias=True)
+        (2): EqualLinear(in_channels=1, out_channels=256, bias=True)
+        (3): EqualLinear(in_channels=1, out_channels=512, bias=True)
+      )
+      (condition_shift): ModuleList(
+        (0): StyleLayer(
+          (0): EqualConv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1, bias=True)
+        )
+        (1): StyleLayer(
+          (0): EqualConv2d(in_channels=64, out_channels=128, kernel_size=3, stride=1, padding=1, bias=True)
+        )
+        (2): StyleLayer(
+          (0): EqualConv2d(in_channels=128, out_channels=256, kernel_size=3, stride=1, padding=1, bias=True)
+        )
+        (3): StyleLayer(
+          (0): EqualConv2d(in_channels=256, out_channels=512, kernel_size=3, stride=1, padding=1, bias=True)
+        )
+      )
+      (downs): ModuleList(
+        (0): Conv3d(2, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+        (1): ResnetBlocWithAttn(
+          (res_block): ResnetBlock(
+            (noise_func): FeatureWiseAffine(
+              (noise_func): Sequential(
+                (0): Linear(in_features=64, out_features=64, bias=True)
+              )
+            )
+            (block1): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 64, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Identity()
+                (3): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (block2): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 64, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Dropout(p=0.2, inplace=False)
+                (3): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (res_conv): Identity()
+          )
+        )
+        (2): ResnetBlocWithAttn(
+          (res_block): ResnetBlock(
+            (noise_func): FeatureWiseAffine(
+              (noise_func): Sequential(
+                (0): Linear(in_features=64, out_features=64, bias=True)
+              )
+            )
+            (block1): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 64, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Identity()
+                (3): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (block2): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 64, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Dropout(p=0.2, inplace=False)
+                (3): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (res_conv): Identity()
+          )
+        )
+        (3): Downsample(
+          (conv): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(2, 2, 2), padding=(1, 1, 1))
+        )
+        (4): ResnetBlocWithAttn(
+          (res_block): ResnetBlock(
+            (noise_func): FeatureWiseAffine(
+              (noise_func): Sequential(
+                (0): Linear(in_features=64, out_features=128, bias=True)
+              )
+            )
+            (block1): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 64, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Identity()
+                (3): Conv3d(64, 128, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (block2): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 128, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Dropout(p=0.2, inplace=False)
+                (3): Conv3d(128, 128, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (res_conv): Conv3d(64, 128, kernel_size=(1, 1, 1), stride=(1, 1, 1))
+          )
+        )
+        (5): ResnetBlocWithAttn(
+          (res_block): ResnetBlock(
+            (noise_func): FeatureWiseAffine(
+              (noise_func): Sequential(
+                (0): Linear(in_features=64, out_features=128, bias=True)
+              )
+            )
+            (block1): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 128, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Identity()
+                (3): Conv3d(128, 128, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (block2): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 128, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Dropout(p=0.2, inplace=False)
+                (3): Conv3d(128, 128, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (res_conv): Identity()
+          )
+        )
+        (6): Downsample(
+          (conv): Conv3d(128, 128, kernel_size=(3, 3, 3), stride=(2, 2, 2), padding=(1, 1, 1))
+        )
+        (7): ResnetBlocWithAttn(
+          (res_block): ResnetBlock(
+            (noise_func): FeatureWiseAffine(
+              (noise_func): Sequential(
+                (0): Linear(in_features=64, out_features=256, bias=True)
+              )
+            )
+            (block1): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 128, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Identity()
+                (3): Conv3d(128, 256, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (block2): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 256, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Dropout(p=0.2, inplace=False)
+                (3): Conv3d(256, 256, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (res_conv): Conv3d(128, 256, kernel_size=(1, 1, 1), stride=(1, 1, 1))
+          )
+        )
+        (8): ResnetBlocWithAttn(
+          (res_block): ResnetBlock(
+            (noise_func): FeatureWiseAffine(
+              (noise_func): Sequential(
+                (0): Linear(in_features=64, out_features=256, bias=True)
+              )
+            )
+            (block1): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 256, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Identity()
+                (3): Conv3d(256, 256, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (block2): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 256, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Dropout(p=0.2, inplace=False)
+                (3): Conv3d(256, 256, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (res_conv): Identity()
+          )
+        )
+        (9): Downsample(
+          (conv): Conv3d(256, 256, kernel_size=(3, 3, 3), stride=(2, 2, 2), padding=(1, 1, 1))
+        )
+        (10): ResnetBlocWithAttn(
+          (res_block): ResnetBlock(
+            (noise_func): FeatureWiseAffine(
+              (noise_func): Sequential(
+                (0): Linear(in_features=64, out_features=512, bias=True)
+              )
+            )
+            (block1): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 256, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Identity()
+                (3): Conv3d(256, 512, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (block2): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 512, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Dropout(p=0.2, inplace=False)
+                (3): Conv3d(512, 512, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (res_conv): Conv3d(256, 512, kernel_size=(1, 1, 1), stride=(1, 1, 1))
+          )
+        )
+        (11): ResnetBlocWithAttn(
+          (res_block): ResnetBlock(
+            (noise_func): FeatureWiseAffine(
+              (noise_func): Sequential(
+                (0): Linear(in_features=64, out_features=512, bias=True)
+              )
+            )
+            (block1): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 512, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Identity()
+                (3): Conv3d(512, 512, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (block2): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 512, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Dropout(p=0.2, inplace=False)
+                (3): Conv3d(512, 512, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (res_conv): Identity()
+          )
+        )
+      )
+      (final_down1): StyleLayer(
+        (0): EqualConv2d(in_channels=512, out_channels=512, kernel_size=3, stride=1, padding=1, bias=False)
+        (1): FusedLeakyReLU()
+      )
+      (final_down2): StyleLayer(
+        (0): UpFirDnSmooth(upsample_factor=1, downsample_factor=2)
+        (1): EqualConv2d(in_channels=512, out_channels=256, kernel_size=3, stride=2, padding=1, bias=False)
+        (2): FusedLeakyReLU()
+      )
+      (final_linear): EqualLinear(in_channels=1024, out_channels=2048, bias=True)
+      (final_styleconv): StyleLayer(
+        (0): EqualConv2d(in_channels=512, out_channels=512, kernel_size=3, stride=1, padding=1, bias=False)
+        (1): FusedLeakyReLU()
+      )
+      (mid): ModuleList(
+        (0): ResnetBlocWithAttn(
+          (res_block): ResnetBlock(
+            (noise_func): FeatureWiseAffine(
+              (noise_func): Sequential(
+                (0): Linear(in_features=64, out_features=512, bias=True)
+              )
+            )
+            (block1): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 512, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Identity()
+                (3): Conv3d(512, 512, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (block2): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 512, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Dropout(p=0.2, inplace=False)
+                (3): Conv3d(512, 512, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (res_conv): Identity()
+          )
+          (attn): SelfAttention(
+            (norm): GroupNorm(32, 512, eps=1e-05, affine=True)
+            (qkv): Conv3d(512, 1536, kernel_size=(1, 1, 1), stride=(1, 1, 1), bias=False)
+            (out): Conv3d(512, 512, kernel_size=(1, 1, 1), stride=(1, 1, 1))
+          )
+        )
+        (1): ResnetBlocWithAttn(
+          (res_block): ResnetBlock(
+            (noise_func): FeatureWiseAffine(
+              (noise_func): Sequential(
+                (0): Linear(in_features=64, out_features=512, bias=True)
+              )
+            )
+            (block1): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 512, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Identity()
+                (3): Conv3d(512, 512, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (block2): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 512, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Dropout(p=0.2, inplace=False)
+                (3): Conv3d(512, 512, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (res_conv): Identity()
+          )
+        )
+      )
+      (ups): ModuleList(
+        (0): ResnetBlocWithAttn(
+          (res_block): ResnetBlock(
+            (noise_func): FeatureWiseAffine(
+              (noise_func): Sequential(
+                (0): Linear(in_features=64, out_features=512, bias=True)
+              )
+            )
+            (block1): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 1024, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Identity()
+                (3): Conv3d(1024, 512, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (block2): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 512, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Dropout(p=0.2, inplace=False)
+                (3): Conv3d(512, 512, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (res_conv): Conv3d(1024, 512, kernel_size=(1, 1, 1), stride=(1, 1, 1))
+          )
+        )
+        (1): ResnetBlocWithAttn(
+          (res_block): ResnetBlock(
+            (noise_func): FeatureWiseAffine(
+              (noise_func): Sequential(
+                (0): Linear(in_features=64, out_features=512, bias=True)
+              )
+            )
+            (block1): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 1024, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Identity()
+                (3): Conv3d(1024, 512, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (block2): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 512, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Dropout(p=0.2, inplace=False)
+                (3): Conv3d(512, 512, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (res_conv): Conv3d(1024, 512, kernel_size=(1, 1, 1), stride=(1, 1, 1))
+          )
+        )
+        (2): ResnetBlocWithAttn(
+          (res_block): ResnetBlock(
+            (noise_func): FeatureWiseAffine(
+              (noise_func): Sequential(
+                (0): Linear(in_features=64, out_features=512, bias=True)
+              )
+            )
+            (block1): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 768, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Identity()
+                (3): Conv3d(768, 512, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (block2): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 512, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Dropout(p=0.2, inplace=False)
+                (3): Conv3d(512, 512, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (res_conv): Conv3d(768, 512, kernel_size=(1, 1, 1), stride=(1, 1, 1))
+          )
+        )
+        (3): idm(
+          (style): StyleLayer_norm_scale_shift(
+            (modulated_conv): ModulatedLayer(in_channels=512, out_channels=512, kernel_size=3, demodulate=True, sample_mode=None)
+            (activate): FusedLeakyReLU()
+            (norm): Norm2Scale()
+          )
+          (imnet): Sequential(
+            (0): Linear(in_features=514, out_features=256, bias=True)
+            (1): Linear(in_features=256, out_features=512, bias=True)
+          )
+        )
+        (4): ResnetBlocWithAttn(
+          (res_block): ResnetBlock(
+            (noise_func): FeatureWiseAffine(
+              (noise_func): Sequential(
+                (0): Linear(in_features=64, out_features=256, bias=True)
+              )
+            )
+            (block1): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 768, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Identity()
+                (3): Conv3d(768, 256, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (block2): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 256, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Dropout(p=0.2, inplace=False)
+                (3): Conv3d(256, 256, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (res_conv): Conv3d(768, 256, kernel_size=(1, 1, 1), stride=(1, 1, 1))
+          )
+        )
+        (5): ResnetBlocWithAttn(
+          (res_block): ResnetBlock(
+            (noise_func): FeatureWiseAffine(
+              (noise_func): Sequential(
+                (0): Linear(in_features=64, out_features=256, bias=True)
+              )
+            )
+            (block1): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 512, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Identity()
+                (3): Conv3d(512, 256, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (block2): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 256, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Dropout(p=0.2, inplace=False)
+                (3): Conv3d(256, 256, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (res_conv): Conv3d(512, 256, kernel_size=(1, 1, 1), stride=(1, 1, 1))
+          )
+        )
+        (6): ResnetBlocWithAttn(
+          (res_block): ResnetBlock(
+            (noise_func): FeatureWiseAffine(
+              (noise_func): Sequential(
+                (0): Linear(in_features=64, out_features=256, bias=True)
+              )
+            )
+            (block1): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 384, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Identity()
+                (3): Conv3d(384, 256, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (block2): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 256, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Dropout(p=0.2, inplace=False)
+                (3): Conv3d(256, 256, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (res_conv): Conv3d(384, 256, kernel_size=(1, 1, 1), stride=(1, 1, 1))
+          )
+        )
+        (7): idm(
+          (style): StyleLayer_norm_scale_shift(
+            (modulated_conv): ModulatedLayer(in_channels=256, out_channels=256, kernel_size=3, demodulate=True, sample_mode=None)
+            (activate): FusedLeakyReLU()
+            (norm): Norm2Scale()
+          )
+          (imnet): Sequential(
+            (0): Linear(in_features=258, out_features=256, bias=True)
+            (1): Linear(in_features=256, out_features=256, bias=True)
+          )
+        )
+        (8): ResnetBlocWithAttn(
+          (res_block): ResnetBlock(
+            (noise_func): FeatureWiseAffine(
+              (noise_func): Sequential(
+                (0): Linear(in_features=64, out_features=128, bias=True)
+              )
+            )
+            (block1): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 384, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Identity()
+                (3): Conv3d(384, 128, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (block2): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 128, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Dropout(p=0.2, inplace=False)
+                (3): Conv3d(128, 128, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (res_conv): Conv3d(384, 128, kernel_size=(1, 1, 1), stride=(1, 1, 1))
+          )
+        )
+        (9): ResnetBlocWithAttn(
+          (res_block): ResnetBlock(
+            (noise_func): FeatureWiseAffine(
+              (noise_func): Sequential(
+                (0): Linear(in_features=64, out_features=128, bias=True)
+              )
+            )
+            (block1): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 256, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Identity()
+                (3): Conv3d(256, 128, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (block2): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 128, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Dropout(p=0.2, inplace=False)
+                (3): Conv3d(128, 128, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (res_conv): Conv3d(256, 128, kernel_size=(1, 1, 1), stride=(1, 1, 1))
+          )
+        )
+        (10): ResnetBlocWithAttn(
+          (res_block): ResnetBlock(
+            (noise_func): FeatureWiseAffine(
+              (noise_func): Sequential(
+                (0): Linear(in_features=64, out_features=128, bias=True)
+              )
+            )
+            (block1): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 192, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Identity()
+                (3): Conv3d(192, 128, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (block2): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 128, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Dropout(p=0.2, inplace=False)
+                (3): Conv3d(128, 128, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (res_conv): Conv3d(192, 128, kernel_size=(1, 1, 1), stride=(1, 1, 1))
+          )
+        )
+        (11): idm(
+          (style): StyleLayer_norm_scale_shift(
+            (modulated_conv): ModulatedLayer(in_channels=128, out_channels=128, kernel_size=3, demodulate=True, sample_mode=None)
+            (activate): FusedLeakyReLU()
+            (norm): Norm2Scale()
+          )
+          (imnet): Sequential(
+            (0): Linear(in_features=130, out_features=256, bias=True)
+            (1): Linear(in_features=256, out_features=128, bias=True)
+          )
+        )
+        (12): ResnetBlocWithAttn(
+          (res_block): ResnetBlock(
+            (noise_func): FeatureWiseAffine(
+              (noise_func): Sequential(
+                (0): Linear(in_features=64, out_features=64, bias=True)
+              )
+            )
+            (block1): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 192, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Identity()
+                (3): Conv3d(192, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (block2): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 64, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Dropout(p=0.2, inplace=False)
+                (3): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (res_conv): Conv3d(192, 64, kernel_size=(1, 1, 1), stride=(1, 1, 1))
+          )
+        )
+        (13): ResnetBlocWithAttn(
+          (res_block): ResnetBlock(
+            (noise_func): FeatureWiseAffine(
+              (noise_func): Sequential(
+                (0): Linear(in_features=64, out_features=64, bias=True)
+              )
+            )
+            (block1): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 128, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Identity()
+                (3): Conv3d(128, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (block2): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 64, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Dropout(p=0.2, inplace=False)
+                (3): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (res_conv): Conv3d(128, 64, kernel_size=(1, 1, 1), stride=(1, 1, 1))
+          )
+        )
+        (14): ResnetBlocWithAttn(
+          (res_block): ResnetBlock(
+            (noise_func): FeatureWiseAffine(
+              (noise_func): Sequential(
+                (0): Linear(in_features=64, out_features=64, bias=True)
+              )
+            )
+            (block1): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 128, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Identity()
+                (3): Conv3d(128, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (block2): Block(
+              (block): Sequential(
+                (0): GroupNorm(32, 64, eps=1e-05, affine=True)
+                (1): Swish()
+                (2): Dropout(p=0.2, inplace=False)
+                (3): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+              )
+            )
+            (res_conv): Conv3d(128, 64, kernel_size=(1, 1, 1), stride=(1, 1, 1))
+          )
+        )
+      )
+      (final_conv): Block(
+        (block): Sequential(
+          (0): GroupNorm(32, 64, eps=1e-05, affine=True)
+          (1): Swish()
+          (2): Identity()
+          (3): Conv3d(64, 1, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+        )
+      )
+    )
+    (loss_func): L1Loss()
+  )
+)
+23-11-29 16:27:49.833 - INFO: Model [DDPM] is created.
+23-11-29 16:27:49.833 - INFO: Initial Model Finished
+23-11-29 16:27:49.833 - INFO: Resuming training from epoch: 0, iter: 0.
